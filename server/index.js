@@ -25,8 +25,8 @@ export default init()
     app.use(cookieParser())
 
     // View Engine
-    app.set('views', path.join(__dirname, 'templates'))
-    app.set('view engine', 'ejs')
+    // app.set('views', path.join(__dirname, 'templates'))
+    // app.set('view engine', 'ejs')
 
     app.use(sassMiddleware({
       src: path.join(__dirname, 'static'),
@@ -37,23 +37,44 @@ export default init()
 
     app.use(express.static(path.join(__dirname, 'static')))
 
-    app.use('/', homeRoutes)
+    // app.use('/', homeRoutes)
 
-    // catch 404 and forward to error handler
-    app.use(function(req, res, next) {
-      next(createError(404))
-    })
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Setting up Webpack Middlewares');
+
+      const Webpack = require('webpack');
+      const WebpackDevMiddleware = require('webpack-dev-middleware');
+      const WebpackHotMiddleware = require('webpack-hot-middleware');
+      const webpackConfig = require('../client/webpack.config');
+
+      const compiler = Webpack(webpackConfig(process.env));
+      app.use(WebpackDevMiddleware(compiler, {
+        publicPath: '/',
+        stats: { colors: true },
+        lazy: false,
+        watchOptions: {
+          aggregateTimeout: 300,
+          poll: true
+        }
+      }));
+      app.use(WebpackHotMiddleware(compiler));
+    }
+
+    // // catch 404 and forward to error handler
+    // app.use(function(req, res, next) {
+    //   next(createError(404))
+    // })
 
     // error handler
-    app.use(function(err, req, res, next) {
-      // set locals, only providing error in development
-      res.locals.message = err.message
-      res.locals.error = req.app.get('env') === 'development' ? err : {}
-
-      // render the error page
-      res.status(err.status || 500)
-      res.render('error')
-    })
+    // app.use(function(err, req, res, next) {
+    //   // set locals, only providing error in development
+    //   res.locals.message = err.message
+    //   res.locals.error = req.app.get('env') === 'development' ? err : {}
+    //
+    //   // render the error page
+    //   res.status(err.status || 500)
+    //   res.render('error')
+    // })
 
     app.disable('x-powered-by')
 

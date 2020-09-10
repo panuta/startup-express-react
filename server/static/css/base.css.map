@@ -1,8 +1,8 @@
 {
 	"version": 3,
-	"file": "styles.css",
+	"file": "base.css",
 	"sources": [
-		"styles.scss"
+		"base.scss"
 	],
 	"names": [],
 	"mappings": ""
